@@ -19,6 +19,7 @@ wireless robot control, and real-time monitoring.
 ## Hardware Components
 - ESP8266 NodeMCU
 - L293D Motor Driver
+- HC-05 Bluetooth Module
 - DC Gear Motors
 - Robot Chassis
 - Li-ion Battery Pack
@@ -33,8 +34,8 @@ wireless robot control, and real-time monitoring.
 - C/C++
 
 ## Working Principle
-1. User sends command through Blynk.
-2. ESP8266 receives the command over Wi-Fi.
+1. User sends command through Blynk or voice.
+2. ESP8266 receives the command over Wi-Fi or using the bluetooth module.
 3. Motor driver receives control signals.
 4. Motors rotate according to the command.
 5. Robot performs desired movement.
