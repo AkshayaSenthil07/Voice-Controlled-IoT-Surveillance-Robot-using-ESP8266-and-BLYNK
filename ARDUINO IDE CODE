@@ -1,0 +1,222 @@
+#define BLYNK_PRINT Serial
+
+#define BLYNK_TEMPLATE_ID ""
+#define BLYNK_TEMPLATE_NAME ""
+#define BLYNK_AUTH_TOKEN ""
+
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+#include <SoftwareSerial.h>
+
+// WiFi Credentials
+char auth[] = "";
+char ssid[] = "";
+char pass[] = "";
+
+// Motor Pins
+#define IN1 D1
+#define IN2 D2
+#define IN3 D3
+#define IN4 D4
+
+// Bluetooth Pins
+SoftwareSerial BT(D5, D6); // RX, TX
+
+// Blynk Variables
+bool forward = 0;
+bool backward = 0;
+bool left = 0;
+bool right = 0;
+bool stopcar = 0;
+
+// Bluetooth Command
+char command;
+
+void setup()
+{
+  Serial.begin(9600);
+
+  BT.begin(9600);
+
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+
+  carStop();
+
+  // Connect Blynk
+  Blynk.begin(auth, ssid, pass);
+
+  Serial.println("Robot Ready");
+}
+
+// ---------------- BLYNK CONTROLS ----------------
+
+// Forward
+BLYNK_WRITE(V0)
+{
+  forward = param.asInt();
+}
+
+// Backward
+BLYNK_WRITE(V1)
+{
+  backward = param.asInt();
+}
+
+// Left
+BLYNK_WRITE(V2)
+{
+  left = param.asInt();
+}
+
+// Right
+BLYNK_WRITE(V3)
+{
+  right = param.asInt();
+}
+
+// Stop
+BLYNK_WRITE(V5)
+{
+  stopcar = param.asInt();
+}
+
+void loop()
+{
+  Blynk.run();
+
+  bluetoothControl();
+
+  blynkControl();
+}
+
+// ---------------- BLUETOOTH CONTROL ----------------
+
+void bluetoothControl()
+{
+  if (BT.available())
+  {
+    command = BT.read();
+
+    Serial.println(command);
+
+    if (command == 'F')
+    {
+      carForward();
+    }
+
+    else if (command == 'B')
+    {
+      carBackward();
+    }
+
+    else if (command == 'L')
+    {
+      carLeft();
+    }
+
+    else if (command == 'R')
+    {
+      carRight();
+    }
+
+    else if (command == 'S')
+    {
+      carStop();
+    }
+  }
+}
+
+// ---------------- BLYNK CONTROL ----------------
+
+void blynkControl()
+{
+  if (forward == 1)
+  {
+    carForward();
+    Serial.println("BLYNK FORWARD");
+  }
+
+  else if (backward == 1)
+  {
+    carBackward();
+    Serial.println("BLYNK BACKWARD");
+  }
+
+  else if (left == 1)
+  {
+    carLeft();
+    Serial.println("BLYNK LEFT");
+  }
+
+  else if (right == 1)
+  {
+    carRight();
+    Serial.println("BLYNK RIGHT");
+  }
+
+  else if (stopcar == 1)
+  {
+    carStop();
+    Serial.println("BLYNK STOP");
+  }
+
+  else
+  {
+    carStop();
+  }
+}
+
+// ---------------- MOTOR FUNCTIONS ----------------
+
+// FORWARD
+void carForward()
+{
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+// BACKWARD
+void carBackward()
+{
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+}
+
+// LEFT
+void carLeft()
+{
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+// RIGHT
+void carRight()
+{
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+}
+
+// STOP
+void carStop()
+{
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+}
